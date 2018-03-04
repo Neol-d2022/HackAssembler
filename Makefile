@@ -3,8 +3,8 @@ CC=gcc
 CFLAGS=-Wall -Wextra -g3
 LFLAGS=
 
-OBJS=main.o
-DEPS=
+OBJS=main.o parser.o
+DEPS=parser.h
 LIBS=-lm
 
 BIN=assembler
