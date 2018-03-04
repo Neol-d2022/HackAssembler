@@ -94,6 +94,24 @@ const char *Code_jump(const char *_jump)
     return _jump_ptr(_jump);
 }
 
+void Code_int2bitString(char *buffer16, int value)
+{
+    int i = 0;
+    unsigned int v = *(unsigned int *)(&value);
+
+    memset(buffer16, '0', 15);
+    buffer16[15] = '\0';
+    while (v > 0)
+    {
+        if (v % 2)
+            buffer16[14 - i] = '1';
+        v >>= 1;
+        i += 1;
+        if (i > 14)
+            break;
+    }
+}
+
 // ================================
 
 static int _Code_cmp_Mnemonic(const void *a, const void *b)
