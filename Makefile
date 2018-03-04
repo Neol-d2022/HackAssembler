@@ -3,8 +3,8 @@ CC=gcc
 CFLAGS=-Wall -Wextra -g3
 LFLAGS=
 
-OBJS=main.o parser.o code.o
-DEPS=parser.h code.h
+OBJS=main.o parser.o code.o symboltable.o avl_tree.o
+DEPS=parser.h code.h symboltable.h avl_tree.h
 LIBS=-lm
 
 BIN=assembler
