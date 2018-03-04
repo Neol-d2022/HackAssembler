@@ -62,7 +62,7 @@ int main(int argc, char **argv)
                         else if (contains(_symbol))
                         {
                             inputValue = GetAddress(_symbol);
-                            fprintf(stderr, "[INFO] Module Symbol Table retrieve symbol '%s' with address %d on %u line(s).\n", _symbol, inputValue, lineCount);
+                            fprintf(stderr, "[INFO] Module Symbol Table retrieve symbol '%s' with address %d on line %u.\n", _symbol, inputValue, lineCount);
                             Code_int2bitString(bitString, inputValue);
                             fprintf(stdout, "0%s\n", bitString);
                         }
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
                         }
                         else
                         {
-                            fprintf(stderr, "[INFO] Module Symbol Table add symbol '%s' with variable address %d on %u line(s).\n", _symbol, variableAddressCount, lineCount);
+                            fprintf(stderr, "[INFO] Module Symbol Table add symbol '%s' with variable address %d on line %u.\n", _symbol, variableAddressCount, lineCount);
                             Code_int2bitString(bitString, variableAddressCount);
                             fprintf(stdout, "0%s\n", bitString);
                         }
@@ -87,15 +87,12 @@ int main(int argc, char **argv)
                         _dest = dest();
                         _comp = comp();
                         _jump = jump();
-                        bitStrings[0] = Code_dest(_dest);
                         bitStrings[1] = Code_comp(_comp);
-                        bitStrings[2] = Code_jump(_jump);
+
                         if (!_dest)
-                        {
-                            error = 1;
-                            fprintf(stderr, "[ERROR] Module Parser failed to parse file '%s' on line %u:\n\tdest is NULL.\n", argv[i], lineCount);
-                            break;
-                        }
+                            bitStrings[0] = "000";
+                        else
+                            bitStrings[0] = Code_dest(_dest);
                         if (!_comp)
                         {
                             error = 1;
@@ -103,11 +100,9 @@ int main(int argc, char **argv)
                             break;
                         }
                         if (!_jump)
-                        {
-                            error = 1;
-                            fprintf(stderr, "[ERROR] Module Parser failed to parse file '%s' on line %u:\n\tjump is NULL.\n", argv[i], lineCount);
-                            break;
-                        }
+                            bitStrings[2] = "000";
+                        else
+                            bitStrings[2] = Code_jump(_jump);
                         if (!bitStrings[0])
                         {
                             error = 1;
@@ -126,7 +121,7 @@ int main(int argc, char **argv)
                             fprintf(stderr, "[ERROR] Module Code failed to turn jump '%s' to bit string on line %u.\n", _jump, lineCount);
                             break;
                         }
-                        fprintf(stdout, "%s%s%s\n", bitStrings[0], bitStrings[1], bitStrings[2]);
+                        fprintf(stdout, "111%s%s%s\n", bitStrings[1], bitStrings[0], bitStrings[2]);
                     }
                     break;
                 case L_COMMAND:
@@ -195,8 +190,8 @@ int main(int argc, char **argv)
         ParserExit();
         if (pass < 2)
         {
-            pass += 1;
             fprintf(stderr, "[INFO] Module Parser has finished parsing file '%s' with pass = %d.\n", argv[i], pass);
+            pass += 1;
             goto main_pass_loop;
         }
         SymbolTableExit();
