@@ -79,6 +79,7 @@ int advance(void)
 {
     static const char newLineChar[] = {' ', '\r', '\n'};
     static const char indentChar[] = {' ', '\t'};
+    static const char spacingCharacters[] = {' '};
     static const char *commentString[] = {"#", "//"};
 
     char buffer[_COMMAND_MAX_LENGTH];
@@ -108,6 +109,7 @@ int advance(void)
                 goto advance_line_too_long;
         }
         _ParserTruncateAfterInclusive(buffer, &length, commentString, sizeof(commentString) / sizeof(commentString[0]));
+        ParserRemoveAtEndOfLine(buffer, spacingCharacters, &length, sizeof(spacingCharacters));
         ParserRemoveAtStartOfLine(buffer, indentChar, &length, sizeof(indentChar));
         memcpy(currentCommand, buffer, length + 1);
         currentCommandLength = length;
