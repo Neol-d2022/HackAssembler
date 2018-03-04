@@ -70,7 +70,7 @@ int ParserExit(void)
 int hasMoreCommands(void)
 {
     if (_fileToParse)
-        return feof(_fileToParse);
+        return (feof(_fileToParse) ? 0 : 1);
     else
         return 0;
 }
