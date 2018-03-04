@@ -25,4 +25,9 @@ const char *jump(void);
 #define PARSER_ERROR_EMPTY_LINE 7
 #define PARSER_ERROR_LINE_TOO_LONG 8
 
+#include <string.h>
+size_t ParserRemoveAtEndOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength);
+size_t ParserRemoveAtStartOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength);
+size_t ParserRemoveAtBothSideOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength);
+
 #endif

@@ -20,9 +20,6 @@ static int _noNewLineCharAtEnd_ExpectEOF;
 
 static int _ParserAllocateMemory(void);
 static void _ParserFreeMemory(void);
-static size_t _ParserRemoveAtEndOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength);
-static size_t _ParserRemoveAtStartOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength);
-static size_t _ParserRemoveAtBothSideOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength);
 static void _ParserTruncateAfterInclusive(char *string, size_t *stringLength, int chr);
 
 int ParserInit(const char *filename)
@@ -103,7 +100,7 @@ int advance(void)
     else
     {
         length = strlen(buffer);
-        if (_ParserRemoveAtEndOfLine(buffer, newLineChar, &length, sizeof(newLineChar)) == 0)
+        if (ParserRemoveAtEndOfLine(buffer, newLineChar, &length, sizeof(newLineChar)) == 0)
         {
             if (_noNewLineCharAtEnd_ExpectEOF == 0)
                 noNewLineChar = _noNewLineCharAtEnd_ExpectEOF = 1;
@@ -111,7 +108,7 @@ int advance(void)
                 goto advance_line_too_long;
         }
         _ParserTruncateAfterInclusive(buffer, &length, commentChar);
-        _ParserRemoveAtStartOfLine(buffer, indentChar, &length, sizeof(indentChar));
+        ParserRemoveAtStartOfLine(buffer, indentChar, &length, sizeof(indentChar));
         memcpy(currentCommand, buffer, length + 1);
         currentCommandLength = length;
         if (length == 0)
@@ -178,7 +175,7 @@ const char *symbol(void)
         return NULL;
     }
 
-    _ParserRemoveAtBothSideOfLine(_symbol, spacingCharacters, &length, sizeof(spacingCharacters));
+    ParserRemoveAtBothSideOfLine(_symbol, spacingCharacters, &length, sizeof(spacingCharacters));
     if (length == 0)
         return NULL;
     return _symbol;
@@ -203,7 +200,7 @@ const char *dest(void)
         _dest[length] = '\0';
     }
 
-    _ParserRemoveAtBothSideOfLine(_dest, spacingCharacters, &length, sizeof(spacingCharacters));
+    ParserRemoveAtBothSideOfLine(_dest, spacingCharacters, &length, sizeof(spacingCharacters));
     return _dest;
 }
 
@@ -234,7 +231,7 @@ const char *comp(void)
         _comp[length] = '\0';
     }
 
-    _ParserRemoveAtBothSideOfLine(_comp, spacingCharacters, &length, sizeof(spacingCharacters));
+    ParserRemoveAtBothSideOfLine(_comp, spacingCharacters, &length, sizeof(spacingCharacters));
     return _comp;
 }
 
@@ -254,8 +251,60 @@ const char *jump(void)
     else
         memcpy(_jump, p + 1, (length = currentCommandLength - ((size_t)(p + 1) - (size_t)currentCommand)) + 1);
 
-    _ParserRemoveAtBothSideOfLine(_jump, spacingCharacters, &length, sizeof(spacingCharacters));
+    ParserRemoveAtBothSideOfLine(_jump, spacingCharacters, &length, sizeof(spacingCharacters));
     return _jump;
+}
+
+size_t ParserRemoveAtEndOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength)
+{
+    size_t i, j, k, l, m;
+
+    k = *stringLength;
+    m = characterLength;
+    for (i = k - 1, j = 0; j < k; i -= 1)
+    {
+        for (l = 0; l < m; l += 1)
+            if (string[i] == unwantedCharacters[l])
+                break;
+        if (l == m)
+            break;
+        else
+            j += 1;
+    }
+    if (j > 0)
+        string[ *stringLength = k - j] = '\0';
+    return j;
+}
+
+size_t ParserRemoveAtStartOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength)
+{
+    size_t i, j, k, l, m;
+
+    k = *stringLength;
+    m = characterLength;
+    for (i = 0, j = 0; j < k; i += 1)
+    {
+        for (l = 0; l < m; l += 1)
+            if (string[i] == unwantedCharacters[l])
+                break;
+        if (l == m)
+            break;
+        else
+            j += 1;
+    }
+    if (j > 0)
+        memmove(string, string + j, (*stringLength = k - j) + 1);
+    return j;
+}
+
+size_t ParserRemoveAtBothSideOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength)
+{
+    size_t i, j;
+
+    i = ParserRemoveAtEndOfLine(string, unwantedCharacters, stringLength, characterLength);
+    j = ParserRemoveAtStartOfLine(string, unwantedCharacters, stringLength, characterLength);
+
+    return i + j;
 }
 
 // ================================
@@ -283,58 +332,6 @@ static void _ParserFreeMemory(void)
     free(_dest);
     free(_comp);
     free(_jump);
-}
-
-static size_t _ParserRemoveAtEndOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength)
-{
-    size_t i, j, k, l, m;
-
-    k = *stringLength;
-    m = characterLength;
-    for (i = k - 1, j = 0; j < k; i -= 1)
-    {
-        for (l = 0; l < m; l += 1)
-            if (string[i] == unwantedCharacters[l])
-                break;
-        if (l == m)
-            break;
-        else
-            j += 1;
-    }
-    if (j > 0)
-        string[ *stringLength = k - j] = '\0';
-    return j;
-}
-
-static size_t _ParserRemoveAtStartOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength)
-{
-    size_t i, j, k, l, m;
-
-    k = *stringLength;
-    m = characterLength;
-    for (i = 0, j = 0; j < k; i += 1)
-    {
-        for (l = 0; l < m; l += 1)
-            if (string[i] == unwantedCharacters[l])
-                break;
-        if (l == m)
-            break;
-        else
-            j += 1;
-    }
-    if (j > 0)
-        memmove(string, string + j, (*stringLength = k - j) + 1);
-    return j;
-}
-
-static size_t _ParserRemoveAtBothSideOfLine(char *string, const char *unwantedCharacters, size_t *stringLength, size_t characterLength)
-{
-    size_t i, j;
-
-    i = _ParserRemoveAtEndOfLine(string, unwantedCharacters, stringLength, characterLength);
-    j = _ParserRemoveAtStartOfLine(string, unwantedCharacters, stringLength, characterLength);
-
-    return i + j;
 }
 
 static void _ParserTruncateAfterInclusive(char *string, size_t *stringLength, int chr)
