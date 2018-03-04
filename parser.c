@@ -20,7 +20,7 @@ static int _noNewLineCharAtEnd_ExpectEOF;
 
 static int _ParserAllocateMemory(void);
 static void _ParserFreeMemory(void);
-static void _ParserTruncateAfterInclusive(char *string, size_t *stringLength, int chr);
+static void _ParserTruncateAfterInclusive(char *string, size_t *length, const char **stringsToTrucate, size_t count);
 
 int ParserInit(const char *filename)
 {
@@ -79,7 +79,7 @@ int advance(void)
 {
     static const char newLineChar[] = {' ', '\r', '\n'};
     static const char indentChar[] = {' ', '\t'};
-    static const char commentChar = '#';
+    static const char *commentString[] = {"#", "//"};
 
     char buffer[_COMMAND_MAX_LENGTH];
     size_t length;
@@ -107,7 +107,7 @@ int advance(void)
             else
                 goto advance_line_too_long;
         }
-        _ParserTruncateAfterInclusive(buffer, &length, commentChar);
+        _ParserTruncateAfterInclusive(buffer, &length, commentString, sizeof(commentString) / sizeof(commentString[0]));
         ParserRemoveAtStartOfLine(buffer, indentChar, &length, sizeof(indentChar));
         memcpy(currentCommand, buffer, length + 1);
         currentCommandLength = length;
@@ -334,14 +334,18 @@ static void _ParserFreeMemory(void)
     free(_jump);
 }
 
-static void _ParserTruncateAfterInclusive(char *string, size_t *stringLength, int chr)
+static void _ParserTruncateAfterInclusive(char *string, size_t *length, const char **stringsToTrucate, size_t count)
 {
     char *p;
+    size_t i;
 
-    p = strchr(string, chr);
-    if (p)
+    for (i = 0; i < count; i += 1)
     {
-        *p = '\0';
-        *stringLength = ((size_t)p - (size_t)string) / sizeof(*p);
+        p = strstr(string, stringsToTrucate[i]);
+        if (p)
+        {
+            *p = '\0';
+            *length = ((size_t)p - (size_t)string) / sizeof(*p);
+        }
     }
 }
