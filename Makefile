@@ -1,7 +1,7 @@
 CC=gcc
 
-CFLAGS=-Wall -Wextra -g3
-LFLAGS=
+CFLAGS=-Wall -Wextra -Ofast
+LFLAGS=-s
 
 OBJS=main.o parser.o code.o symboltable.o avl_tree.o
 DEPS=parser.h code.h symboltable.h avl_tree.h
