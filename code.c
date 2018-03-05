@@ -273,4 +273,5 @@ static void _Code_StringMultipleConcat(char *dst, const void **src, const size_t
         memcpy(dst + j, src[i], srcLength[i]);
         j += srcLength[i];
     }
+    dst[j] = '\0';
 }
