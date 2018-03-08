@@ -146,7 +146,7 @@ int main(int argc, char **argv)
                                 fprintf(stderr, "[ERROR] Module Symbol Table failed to add the symbol(label) '%s' on line %u\n\tFile '%s'.\n", _symbol, lineCount, argv[i]);
                             }
                             else
-                                fprintf(stderr, "[INFO]  Module Symbol Table add symbol '%s' with instruction address %d on %u line(s).\n", _symbol, instructionAddressCount, lineCount);
+                                fprintf(stderr, "[INFO] Module Symbol Table add symbol '%s' with instruction address %d on %u line(s).\n", _symbol, instructionAddressCount, lineCount);
                         }
                     }
                     break;
