@@ -188,6 +188,12 @@ int main(int argc, char **argv)
             lineCount += 1;
         }
         ParserExit();
+        if (error)
+        {
+            fprintf(stderr, "[WARNING] Skipping the file '%s' that failed to parse with pass = %d.\n", argv[i], pass);
+            SymbolTableExit();
+            continue;
+        }
         if (pass < 2)
         {
             fprintf(stderr, "[INFO] Module Parser has finished parsing file '%s' with pass = %d.\n", argv[i], pass);
